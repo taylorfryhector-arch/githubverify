@@ -1,0 +1,40 @@
+name: Cache Demo Workflow
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Restore / prime cache
+      - name: prime-cache-a118a8a
+        id: cache-step
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: cache-a118a8a
+          restore-keys: cache-a118a8a
+
+      # Step 3: Display cache result
+      - name: Show cache result
+        run: |
+          if [ -z "${{ steps.cache-step.outputs.cache-hit }}" ]; then
+            echo "Cache miss"
+          else
+            echo "Cache hit: ${{ steps.cache-step.outputs.cache-hit }}"
+          fi
+
+      # Step 4: Install dependencies (to populate cache if needed)
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests numpy pandas
